@@ -1,0 +1,10 @@
+database:
+  username: root
+  password: P@ssw0rd
+  host: 127.0.0.1
+  port: 3306
+  network: tcp
+  dbname: go_server_db
+server:
+  host: 127.0.0.1
+  port: 8080
