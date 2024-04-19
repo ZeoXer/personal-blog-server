@@ -7,10 +7,12 @@ import (
 )
 
 func InitializeRoutes(router *gin.Engine) {
+	// register api group
 	AuthAPI := api.AuthAPIGroup
+	ImageAPI := api.ImageAPIGroup
 	AuthMiddlewareGroup := api.AuthMiddlewareGroup
 
-	// register the authorization routes
+	// register routes by group
 	authRouterGroup := router.Group("auth")
 	authRouterGroup.POST("signup", AuthAPI.Signup)
 	authRouterGroup.POST("login", AuthAPI.Login)
@@ -21,4 +23,8 @@ func InitializeRoutes(router *gin.Engine) {
 
 	articleRouterPrivateGroup := router.Group("article")
 	articleRouterPrivateGroup.Use(AuthMiddlewareGroup.AuthMiddleware())
+
+	imgRouterGroup := router.Group("image")
+	imgRouterGroup.Use(AuthMiddlewareGroup.AuthMiddleware())
+	imgRouterGroup.POST("uploadAvatar", ImageAPI.UploadAvatar)
 }

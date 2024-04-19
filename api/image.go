@@ -1,16 +1,21 @@
 package api
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+)
 
 type ImageAPI struct {
 }
 
 func (i *ImageAPI) UploadAvatar(c *gin.Context) {
-	err := ImageService.SaveImage(c)
+	err := ImageService.SaveAvatar(c)
+
 	if err != nil {
-		Utils.CJSON(400, err.Error(), nil, 0, c)
+		Utils.CJSON(500, err.Error(), nil, 0, c)
 		return
 	}
 
-	Utils.CJSON(200, "Image saved", nil, 1, c)
+	Utils.CJSON(200, "圖片上傳成功", nil, 1, c)
 }
+
+var ImageAPIGroup = new(ImageAPI)
