@@ -1,7 +1,7 @@
 database:
-  username: root
-  password: P@ssw0rd
-  host: 127.0.0.1
+  username: ZeoXer
+  password: kamjyd0925
+  host: 18.179.210.152
   port: 3306
   network: tcp
   dbname: go_server_db

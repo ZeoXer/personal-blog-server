@@ -6,3 +6,7 @@ type Avatar struct {
 	Filename string `json:"filename" gorm:"not null;type:varchar(255)"`
 	Path     string `json:"path" gorm:"not null;type:varchar(255)"`
 }
+
+func (a Avatar) TableName() string {
+	return "Avatars"
+}

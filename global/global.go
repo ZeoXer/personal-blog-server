@@ -8,7 +8,6 @@ import (
 
 var (
 	DB         *gorm.DB
-	USER       model.User
 	CONFIG     model.Config
 	SECRET_KEY string
 )

@@ -1,7 +1,6 @@
 package api
 
 import (
-	"go-server/global"
 	auth_model "go-server/model"
 
 	"github.com/gin-gonic/gin"
@@ -51,7 +50,23 @@ func (a *AuthAPI) Login(c *gin.Context) {
 }
 
 func (a *AuthAPI) GetUserInfo(c *gin.Context) {
-	Utils.CJSON(200, "回傳使用者名稱", global.USER, 1, c)
+	username, exists := c.Get("username")
+	if !exists {
+		Utils.CJSON(401, "使用者名稱不存在", nil, 0, c)
+		return
+	}
+	email, exists := c.Get("email")
+	if !exists {
+		Utils.CJSON(401, "信箱不存在", nil, 0, c)
+		return
+	}
+	usernameStr := username.(string)
+	emailStr := email.(string)
+
+	Utils.CJSON(200, "回傳使用者", gin.H{
+		"username": usernameStr,
+		"email":    emailStr,
+	}, 1, c)
 }
 
 var AuthAPIGroup = new(AuthAPI)

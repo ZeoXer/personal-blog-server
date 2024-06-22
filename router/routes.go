@@ -12,19 +12,26 @@ func InitializeRoutes(router *gin.Engine) {
 	ImageAPI := api.ImageAPIGroup
 	AuthMiddlewareGroup := api.AuthMiddlewareGroup
 
-	// register routes by group
+	// /auth/...
 	authRouterGroup := router.Group("auth")
 	authRouterGroup.POST("signup", AuthAPI.Signup)
 	authRouterGroup.POST("login", AuthAPI.Login)
 
+	// /user/...
 	userRouterGroup := router.Group("user")
 	userRouterGroup.Use(AuthMiddlewareGroup.AuthMiddleware())
 	userRouterGroup.GET("me", AuthAPI.GetUserInfo)
 
+	// /article/...
 	articleRouterPrivateGroup := router.Group("article")
 	articleRouterPrivateGroup.Use(AuthMiddlewareGroup.AuthMiddleware())
 
+	// /image/...
 	imgRouterGroup := router.Group("image")
+	// 定義靜態資源路徑
+	router.Static("/uploadImgs/avatar", "./uploadImgs/avatar")
 	imgRouterGroup.Use(AuthMiddlewareGroup.AuthMiddleware())
 	imgRouterGroup.POST("uploadAvatar", ImageAPI.UploadAvatar)
+	imgRouterGroup.GET("getAvatar", ImageAPI.GetAvatar)
+	imgRouterGroup.DELETE("removeAvatar", ImageAPI.RemoveAvatar)
 }

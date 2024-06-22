@@ -2,7 +2,7 @@ package db
 
 import (
 	"go-server/global"
-	auth_model "go-server/model"
+	model "go-server/model"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -21,7 +21,7 @@ func Connect() (*gorm.DB, error) {
 
 // AutoMigrate will create the tables in the database
 func AutoMigrate() {
-	if err := global.DB.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(auth_model.User{}); err != nil {
+	if err := global.DB.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(model.User{}, model.Avatar{}); err != nil {
 		panic("Error automigrating: " + err.Error())
 	}
 }
