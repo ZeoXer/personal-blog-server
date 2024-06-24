@@ -3,6 +3,8 @@ package service
 import (
 	"go-server/global"
 	article_model "go-server/model"
+
+	"github.com/gin-gonic/gin"
 )
 
 type ArticleService struct{}
@@ -58,8 +60,25 @@ func (a *ArticleService) DeleteArticle(articleId uint) error {
 	return nil
 }
 
-func (a *ArticleService) CreateArticleCategory(category *article_model.ArticleCategory) error {
-	err := global.DB.Create(category).Error
+func (a *ArticleService) CreateArticleCategory(c *gin.Context) error {
+	username, _, err := Utils.GetUserInfo(c)
+	if err != nil {
+		return err
+	}
+
+	var RequestBody struct {
+		CategoryName string `json:"category_name"`
+	}
+	if err := c.ShouldBindJSON(&RequestBody); err != nil {
+		return err
+	}
+
+	category := article_model.ArticleCategory{
+		Username:     username,
+		CategoryName: RequestBody.CategoryName,
+	}
+
+	err = global.DB.Create(&category).Error
 	if err != nil {
 		return err
 	}
@@ -67,10 +86,14 @@ func (a *ArticleService) CreateArticleCategory(category *article_model.ArticleCa
 	return nil
 }
 
-func (a *ArticleService) GetArticleCategoryList(author string) ([]article_model.ArticleCategory, error) {
+func (a *ArticleService) GetArticleCategoryList(c *gin.Context) ([]article_model.ArticleCategory, error) {
 	var articleCategoryList []article_model.ArticleCategory
+	username, _, err := Utils.GetUserInfo(c)
+	if err != nil {
+		return nil, err
+	}
 
-	err := global.DB.Where("author = ?", author).Find(&articleCategoryList).Error
+	err = global.DB.Select("id, username, category_name").Where("username = ?", username).Find(&articleCategoryList).Error
 	if err != nil {
 		return nil, err
 	}

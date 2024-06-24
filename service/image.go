@@ -13,21 +13,6 @@ import (
 
 type ImageService struct{}
 
-// 回傳格式(username, email, error)
-func getUserInfo(c *gin.Context) (string, string, error) {
-	username, exists := c.Get("username")
-	if !exists {
-		return "", "", fmt.Errorf("username not found")
-	}
-
-	email, exists := c.Get("email")
-	if !exists {
-		return "", "", fmt.Errorf("email not found")
-	}
-
-	return username.(string), email.(string), nil
-}
-
 func (i *ImageService) SaveAvatar(c *gin.Context) error {
 	file, handler, err := c.Request.FormFile("uploadAvatar")
 	if err != nil {
@@ -35,7 +20,7 @@ func (i *ImageService) SaveAvatar(c *gin.Context) error {
 	}
 	defer file.Close()
 
-	username, _, err := getUserInfo(c)
+	username, _, err := Utils.GetUserInfo(c)
 	if err != nil {
 		return err
 	}
@@ -89,7 +74,7 @@ func (i *ImageService) SaveAvatar(c *gin.Context) error {
 }
 
 func (i *ImageService) GetAvatar(c *gin.Context) (model.Avatar, error) {
-	username, _, err := getUserInfo(c)
+	username, _, err := Utils.GetUserInfo(c)
 	if err != nil {
 		return model.Avatar{}, fmt.Errorf("使用者名稱不存在")
 	}
@@ -103,7 +88,7 @@ func (i *ImageService) GetAvatar(c *gin.Context) (model.Avatar, error) {
 }
 
 func (i *ImageService) RemoveAvatar(c *gin.Context) error {
-	username, _, err := getUserInfo(c)
+	username, _, err := Utils.GetUserInfo(c)
 	if err != nil {
 		return err
 	}

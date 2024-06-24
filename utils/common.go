@@ -1,10 +1,14 @@
 package utils
 
-import "github.com/gin-gonic/gin"
+import (
+	"fmt"
 
-type Response struct{}
+	"github.com/gin-gonic/gin"
+)
 
-func (r *Response) CJSON(code int, message string, result any, status int, c *gin.Context) {
+type UtilFunc struct{}
+
+func (u *UtilFunc) CJSON(code int, message string, result any, status int, c *gin.Context) {
 	c.JSON(code, gin.H{
 		"data":    result,
 		"message": message,
@@ -12,4 +16,19 @@ func (r *Response) CJSON(code int, message string, result any, status int, c *gi
 	})
 }
 
-var Utils = new(Response)
+// 回傳格式(username, email, error)
+func (u *UtilFunc) GetUserInfo(c *gin.Context) (string, string, error) {
+	username, exists := c.Get("username")
+	if !exists {
+		return "", "", fmt.Errorf("username not found")
+	}
+
+	email, exists := c.Get("email")
+	if !exists {
+		return "", "", fmt.Errorf("email not found")
+	}
+
+	return username.(string), email.(string), nil
+}
+
+var Utils = new(UtilFunc)
