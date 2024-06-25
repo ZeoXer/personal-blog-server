@@ -20,12 +20,12 @@ func (u *UtilFunc) CJSON(code int, message string, result any, status int, c *gi
 func (u *UtilFunc) GetUserInfo(c *gin.Context) (string, string, error) {
 	username, exists := c.Get("username")
 	if !exists {
-		return "", "", fmt.Errorf("username not found")
+		return "", "", fmt.Errorf("找不到使用者")
 	}
 
 	email, exists := c.Get("email")
 	if !exists {
-		return "", "", fmt.Errorf("email not found")
+		return "", "", fmt.Errorf("找不到信箱")
 	}
 
 	return username.(string), email.(string), nil

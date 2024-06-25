@@ -7,6 +7,7 @@ import (
 type Article struct {
 	ID          uint      `json:"id" gorm:"primaryKey;autoIncrement"`
 	CreateAt    time.Time `json:"create_at" gorm:"autoCreateTime"`
+	UpdatedAt   time.Time `json:"updated_at" gorm:"autoUpdateTime"`
 	Username    string    `json:"username" gorm:"not null;type:varchar(50);"`
 	CategoryID  uint      `json:"category_name" gorm:"not null;type:varchar(50);"`
 	Title       string    `json:"title" gorm:"not null;type:varchar(50);"`

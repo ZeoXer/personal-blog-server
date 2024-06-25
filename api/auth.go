@@ -50,22 +50,15 @@ func (a *AuthAPI) Login(c *gin.Context) {
 }
 
 func (a *AuthAPI) GetUserInfo(c *gin.Context) {
-	username, exists := c.Get("username")
-	if !exists {
-		Utils.CJSON(401, "使用者名稱不存在", nil, 0, c)
+	username, email, err := Utils.GetUserInfo(c)
+	if err != nil {
+		Utils.CJSON(401, err.Error(), nil, 0, c)
 		return
 	}
-	email, exists := c.Get("email")
-	if !exists {
-		Utils.CJSON(401, "信箱不存在", nil, 0, c)
-		return
-	}
-	usernameStr := username.(string)
-	emailStr := email.(string)
 
 	Utils.CJSON(200, "回傳使用者", gin.H{
-		"username": usernameStr,
-		"email":    emailStr,
+		"username": username,
+		"email":    email,
 	}, 1, c)
 }
 

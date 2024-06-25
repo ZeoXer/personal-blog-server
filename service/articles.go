@@ -9,8 +9,39 @@ import (
 
 type ArticleService struct{}
 
-func (a *ArticleService) CreateArticle(article *article_model.Article) error {
-	err := global.DB.Create(article).Error
+func makeArticle(c *gin.Context) (*article_model.Article, error) {
+	username, _, err := Utils.GetUserInfo(c)
+	if err != nil {
+		return nil, err
+	}
+
+	var RequestBody struct {
+		Title      string `json:"title"`
+		Content    string `json:"content"`
+		CategoryID uint   `json:"category_id"`
+	}
+
+	if err := c.ShouldBindJSON(&RequestBody); err != nil {
+		return nil, err
+	}
+
+	article := &article_model.Article{
+		Title:      RequestBody.Title,
+		Content:    RequestBody.Content,
+		Username:   username,
+		CategoryID: RequestBody.CategoryID,
+	}
+
+	return article, nil
+}
+
+func (a *ArticleService) CreateArticle(c *gin.Context) error {
+	article, err := makeArticle(c)
+	if err != nil {
+		return err
+	}
+
+	err = global.DB.Create(article).Error
 	if err != nil {
 		return err
 	}
@@ -18,10 +49,17 @@ func (a *ArticleService) CreateArticle(article *article_model.Article) error {
 	return nil
 }
 
-func (a *ArticleService) GetArticle(articleId uint) (*article_model.Article, error) {
-	var article article_model.Article
+func (a *ArticleService) GetArticle(c *gin.Context) (*article_model.Article, error) {
+	var RequestBody struct {
+		ArticleId uint `json:"article_id"`
+	}
 
-	err := global.DB.First(&article, articleId).Error
+	if err := c.ShouldBindJSON(&RequestBody); err != nil {
+		return nil, err
+	}
+
+	var article article_model.Article
+	err := global.DB.First(&article, RequestBody.ArticleId).Error
 	if err != nil {
 		return nil, err
 	}
@@ -29,19 +67,13 @@ func (a *ArticleService) GetArticle(articleId uint) (*article_model.Article, err
 	return &article, nil
 }
 
-func (a *ArticleService) GetArticlesByCategory(category string) ([]article_model.Article, error) {
-	var articleList []article_model.Article
-
-	err := global.DB.Where("category = ?", category).Find(&articleList).Error
+func (a *ArticleService) UpdateArticle(c *gin.Context) error {
+	article, err := makeArticle(c)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return articleList, nil
-}
-
-func (a *ArticleService) UpdateArticle(article *article_model.Article) error {
-	err := global.DB.Save(article).Error
+	err = global.DB.Save(article).Error
 	if err != nil {
 		return err
 	}
@@ -49,6 +81,7 @@ func (a *ArticleService) UpdateArticle(article *article_model.Article) error {
 	return nil
 }
 
+// TODO
 func (a *ArticleService) DeleteArticle(articleId uint) error {
 	var article article_model.Article
 
@@ -60,6 +93,18 @@ func (a *ArticleService) DeleteArticle(articleId uint) error {
 	return nil
 }
 
+// TODO
+func (a *ArticleService) GetArticlesByCategory(category string) ([]article_model.Article, error) {
+	var articleList []article_model.Article
+
+	err := global.DB.Where("category = ?", category).Find(&articleList).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return articleList, nil
+}
+
 func (a *ArticleService) CreateArticleCategory(c *gin.Context) error {
 	username, _, err := Utils.GetUserInfo(c)
 	if err != nil {
@@ -69,6 +114,7 @@ func (a *ArticleService) CreateArticleCategory(c *gin.Context) error {
 	var RequestBody struct {
 		CategoryName string `json:"category_name"`
 	}
+
 	if err := c.ShouldBindJSON(&RequestBody); err != nil {
 		return err
 	}
@@ -101,8 +147,16 @@ func (a *ArticleService) GetArticleCategoryList(c *gin.Context) ([]article_model
 	return articleCategoryList, nil
 }
 
-func (a *ArticleService) UpdateArticleCategory(article *article_model.ArticleCategory) error {
-	err := global.DB.Save(article).Error
+func (a *ArticleService) UpdateArticleCategory(c *gin.Context) error {
+	var RequestBody struct {
+		Id           uint   `json:"id"`
+		CategoryName string `json:"category_name"`
+	}
+	if err := c.ShouldBindJSON(&RequestBody); err != nil {
+		return err
+	}
+
+	err := global.DB.Model(&article_model.ArticleCategory{}).Where("id = ?", RequestBody.Id).Update("category_name", RequestBody.CategoryName).Error
 	if err != nil {
 		return err
 	}
@@ -110,6 +164,7 @@ func (a *ArticleService) UpdateArticleCategory(article *article_model.ArticleCat
 	return nil
 }
 
+// TODO
 func (a *ArticleService) DeleteArticleCategory(categoryId uint) error {
 	var articleCategory article_model.ArticleCategory
 
