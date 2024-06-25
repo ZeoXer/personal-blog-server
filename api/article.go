@@ -27,3 +27,14 @@ func (a *ArticleAPI) GetAllArticleCategory(c *gin.Context) {
 }
 
 var ArticleAPIGroup = new(ArticleAPI)
+
+func (a *ArticleAPI) UpdateArticleCategory(c *gin.Context) {
+	err := ArticleService.UpdateArticleCategory(c)
+
+	if err != nil {
+		Utils.CJSON(500, err.Error(), nil, 0, c)
+		return
+	}
+
+	Utils.CJSON(200, "更新文章分類成功", nil, 1, c)
+}

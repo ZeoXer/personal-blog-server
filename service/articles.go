@@ -148,15 +148,20 @@ func (a *ArticleService) GetArticleCategoryList(c *gin.Context) ([]article_model
 }
 
 func (a *ArticleService) UpdateArticleCategory(c *gin.Context) error {
+	username, _, err := Utils.GetUserInfo(c)
+	if err != nil {
+		return err
+	}
+
 	var RequestBody struct {
-		Id           uint   `json:"id"`
+		Id           uint   `json:"category_id"`
 		CategoryName string `json:"category_name"`
 	}
 	if err := c.ShouldBindJSON(&RequestBody); err != nil {
 		return err
 	}
 
-	err := global.DB.Model(&article_model.ArticleCategory{}).Where("id = ?", RequestBody.Id).Update("category_name", RequestBody.CategoryName).Error
+	err = global.DB.Model(&article_model.ArticleCategory{}).Where("id = ? AND username = ?", RequestBody.Id, username).Update("category_name", RequestBody.CategoryName).Error
 	if err != nil {
 		return err
 	}
