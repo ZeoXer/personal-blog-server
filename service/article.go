@@ -3,6 +3,7 @@ package service
 import (
 	"go-server/global"
 	article_model "go-server/model"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -50,16 +51,14 @@ func (a *ArticleService) CreateArticle(c *gin.Context) error {
 }
 
 func (a *ArticleService) GetArticle(c *gin.Context) (*article_model.Article, error) {
-	var RequestBody struct {
-		ArticleId uint `json:"article_id"`
-	}
-
-	if err := c.ShouldBindJSON(&RequestBody); err != nil {
+	articleIdParam := c.Param("articleId")
+	articleId, err := strconv.Atoi(articleIdParam)
+	if err != nil {
 		return nil, err
 	}
 
 	var article article_model.Article
-	err := global.DB.First(&article, RequestBody.ArticleId).Error
+	err = global.DB.First(&article, articleId).Error
 	if err != nil {
 		return nil, err
 	}
@@ -68,12 +67,30 @@ func (a *ArticleService) GetArticle(c *gin.Context) (*article_model.Article, err
 }
 
 func (a *ArticleService) UpdateArticle(c *gin.Context) error {
+	username, _, err := Utils.GetUserInfo(c)
+	if err != nil {
+		return err
+	}
+
+	articleIdParam := c.Param("articleId")
+	articleId, err := strconv.Atoi(articleIdParam)
+	if err != nil {
+		return err
+	}
+
+	var originArticle article_model.Article
+	err = global.DB.Where("id = ? AND username = ?", articleId, username).First(&originArticle).Error
+	if err != nil {
+		return err
+	}
+
 	article, err := makeArticle(c)
 	if err != nil {
 		return err
 	}
 
-	err = global.DB.Save(article).Error
+	err = global.DB.Model(&article_model.Article{}).Where("id = ?", articleId).Updates(article).Error
+
 	if err != nil {
 		return err
 	}
@@ -93,11 +110,20 @@ func (a *ArticleService) DeleteArticle(articleId uint) error {
 	return nil
 }
 
-// TODO
-func (a *ArticleService) GetArticlesByCategory(category string) ([]article_model.Article, error) {
-	var articleList []article_model.Article
+func (a *ArticleService) GetArticlesByCategory(c *gin.Context) ([]article_model.Article, error) {
+	username, _, err := Utils.GetUserInfo(c)
+	if err != nil {
+		return nil, err
+	}
 
-	err := global.DB.Where("category = ?", category).Find(&articleList).Error
+	categoryIdParam := c.Param("categoryId")
+	categoryId, err := strconv.Atoi(categoryIdParam)
+	if err != nil {
+		return nil, err
+	}
+
+	var articleList []article_model.Article
+	err = global.DB.Where("username = ? AND category_id = ?", username, categoryId).Find(&articleList).Error
 	if err != nil {
 		return nil, err
 	}
@@ -139,7 +165,7 @@ func (a *ArticleService) GetArticleCategoryList(c *gin.Context) ([]article_model
 		return nil, err
 	}
 
-	err = global.DB.Select("id, username, category_name").Where("username = ?", username).Find(&articleCategoryList).Error
+	err = global.DB.Where("username = ?", username).Find(&articleCategoryList).Error
 	if err != nil {
 		return nil, err
 	}
@@ -148,20 +174,31 @@ func (a *ArticleService) GetArticleCategoryList(c *gin.Context) ([]article_model
 }
 
 func (a *ArticleService) UpdateArticleCategory(c *gin.Context) error {
+	categoryIdParam := c.Param("categoryId")
+	categoryId, err := strconv.Atoi(categoryIdParam)
+	if err != nil {
+		return err
+	}
+
 	username, _, err := Utils.GetUserInfo(c)
 	if err != nil {
 		return err
 	}
 
+	var originCategory article_model.ArticleCategory
+	err = global.DB.Where("id = ? AND username = ?", categoryId, username).First(&originCategory).Error
+	if err != nil {
+		return err
+	}
+
 	var RequestBody struct {
-		Id           uint   `json:"category_id"`
 		CategoryName string `json:"category_name"`
 	}
 	if err := c.ShouldBindJSON(&RequestBody); err != nil {
 		return err
 	}
 
-	err = global.DB.Model(&article_model.ArticleCategory{}).Where("id = ? AND username = ?", RequestBody.Id, username).Update("category_name", RequestBody.CategoryName).Error
+	err = global.DB.Model(&article_model.ArticleCategory{}).Where("id = ?", categoryId).Update("category_name", RequestBody.CategoryName).Error
 	if err != nil {
 		return err
 	}

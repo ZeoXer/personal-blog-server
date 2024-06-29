@@ -28,7 +28,11 @@ func InitializeRoutes(router *gin.Engine) {
 	articleRouterPrivateGroup.Use(AuthMiddlewareGroup.AuthMiddleware())
 	articleRouterPrivateGroup.POST("addArticleCategory", ArticleAPI.AddArticleCategory)
 	articleRouterPrivateGroup.GET("getAllArticleCategory", ArticleAPI.GetAllArticleCategory)
-	articleRouterPrivateGroup.PUT("updateArticleCategory", ArticleAPI.UpdateArticleCategory)
+	articleRouterPrivateGroup.PUT("updateArticleCategory/:categoryId", ArticleAPI.UpdateArticleCategory)
+	articleRouterPrivateGroup.POST("addArticle", ArticleAPI.AddArticle)
+	articleRouterPrivateGroup.GET("getArticle/:articleId", ArticleAPI.GetArticle)
+	articleRouterPrivateGroup.PUT("updateArticle/:articleId", ArticleAPI.UpdateArticle)
+	articleRouterPrivateGroup.GET("getArticlesByCategory/:categoryId", ArticleAPI.GetArticlesByCategory)
 
 	// /image/...
 	imgRouterGroup := router.Group("image")
