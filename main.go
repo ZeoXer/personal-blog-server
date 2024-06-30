@@ -26,7 +26,9 @@ func main() {
 	router.InitializeRoutes(server)
 
 	// Set the trusted proxies to nil
-	server.SetTrustedProxies(nil)
+	// server.SetTrustedProxies(nil)
 
-	server.Run(":" + global.CONFIG.Server.Port) // Run the server
+	certFile := "/certificate.pem"
+	keyFile := "/private-key.pem"
+	server.RunTLS(":"+global.CONFIG.Server.Port, certFile, keyFile) // Run the server
 }
