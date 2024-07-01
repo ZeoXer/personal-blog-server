@@ -3,10 +3,26 @@ package router
 import (
 	"go-server/api"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 func InitializeRoutes(router *gin.Engine) {
+	// setting cors
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowOrigins = []string{"https://blog.zeoxer.com"}
+	corsConfig.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
+	corsConfig.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
+	router.Use(cors.New(corsConfig))
+
+	router.OPTIONS("/*cors", func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "https://blog.zeoxer.com")
+		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		c.Header("Access-Control-Allow-Headers", "Origin, Content-Type, Authorization")
+		c.Header("Access-Control-Allow-Credentials", "true")
+		c.AbortWithStatus(204)
+	})
+
 	// register api group
 	AuthAPI := api.AuthAPIGroup
 	ImageAPI := api.ImageAPIGroup

@@ -5,7 +5,6 @@ import (
 	"go-server/global"
 	"go-server/router"
 
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -25,12 +24,6 @@ func main() {
 
 	// Initialize the routes
 	router.InitializeRoutes(server)
-
-	corsConfig := cors.DefaultConfig()
-	corsConfig.AllowOrigins = []string{"https://blog.zeoxer.com"}
-	corsConfig.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
-	corsConfig.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
-	server.Use(cors.New(corsConfig))
 
 	// Set the trusted proxies to nil
 	server.SetTrustedProxies(nil)
