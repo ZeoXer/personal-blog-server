@@ -25,7 +25,7 @@ func (i *ImageService) SaveAvatar(c *gin.Context) error {
 		return err
 	}
 
-	serverPath := fmt.Sprintf("http://%s:%s/", global.CONFIG.Server.Host, global.CONFIG.Server.Port)
+	serverPath := fmt.Sprintf("http://%s/", global.CONFIG.Server.Host)
 
 	// 檢查使用者是否有上傳過頭像，若有則刪除舊的頭像
 	existingImage := model.Avatar{}
@@ -93,7 +93,7 @@ func (i *ImageService) RemoveAvatar(c *gin.Context) error {
 		return err
 	}
 
-	serverPath := fmt.Sprintf("http://%s:%s/", global.CONFIG.Server.Host, global.CONFIG.Server.Port)
+	serverPath := fmt.Sprintf("http://%s/", global.CONFIG.Server.Host)
 
 	existingImage := model.Avatar{}
 	if err := global.DB.Where("username = ?", username).First(&existingImage).Error; err == nil {
