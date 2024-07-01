@@ -25,7 +25,7 @@ func (i *ImageService) SaveAvatar(c *gin.Context) error {
 		return err
 	}
 
-	serverPath := fmt.Sprintf("httsp://%s/", global.CONFIG.Server.Host)
+	serverPath := fmt.Sprintf("https://%s/", global.CONFIG.Server.Host)
 
 	// 檢查使用者是否有上傳過頭像，若有則刪除舊的頭像
 	existingImage := model.Avatar{}
