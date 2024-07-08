@@ -51,6 +51,8 @@ func (a *ArticleService) CreateArticle(c *gin.Context) error {
 }
 
 func (a *ArticleService) GetArticle(c *gin.Context) (*article_model.Article, error) {
+	authorName := c.Param("authorName")
+
 	articleIdParam := c.Param("articleId")
 	articleId, err := strconv.Atoi(articleIdParam)
 	if err != nil {
@@ -58,7 +60,12 @@ func (a *ArticleService) GetArticle(c *gin.Context) (*article_model.Article, err
 	}
 
 	var article article_model.Article
-	err = global.DB.First(&article, articleId).Error
+	if authorName != "" {
+		err = global.DB.Where("id = ? AND is_published = ?", articleId, true).First(&article).Error
+	} else {
+		err = global.DB.First(&article, articleId).Error
+	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -111,8 +118,9 @@ func (a *ArticleService) DeleteArticle(articleId uint) error {
 }
 
 func (a *ArticleService) GetArticlesByCategory(c *gin.Context) ([]article_model.Article, error) {
+	authorName := c.Param("authorName")
 	username, _, err := Utils.GetUserInfo(c)
-	if err != nil {
+	if err != nil && authorName == "" {
 		return nil, err
 	}
 
@@ -123,7 +131,12 @@ func (a *ArticleService) GetArticlesByCategory(c *gin.Context) ([]article_model.
 	}
 
 	var articleList []article_model.Article
-	err = global.DB.Where("username = ? AND category_id = ?", username, categoryId).Find(&articleList).Error
+	if authorName != "" {
+		err = global.DB.Where("username = ? AND category_id = ? AND is_published = ?", authorName, categoryId, true).Find(&articleList).Error
+	} else {
+		err = global.DB.Where("username = ? AND category_id = ?", username, categoryId).Find(&articleList).Error
+	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -160,12 +173,18 @@ func (a *ArticleService) CreateArticleCategory(c *gin.Context) error {
 
 func (a *ArticleService) GetArticleCategoryList(c *gin.Context) ([]article_model.ArticleCategory, error) {
 	var articleCategoryList []article_model.ArticleCategory
+	authorName := c.Param("authorName")
 	username, _, err := Utils.GetUserInfo(c)
-	if err != nil {
+	if err != nil && authorName == "" {
 		return nil, err
 	}
 
-	err = global.DB.Where("username = ?", username).Find(&articleCategoryList).Error
+	if authorName != "" {
+		err = global.DB.Where("username = ?", authorName).Find(&articleCategoryList).Error
+	} else {
+		err = global.DB.Where("username = ?", username).Find(&articleCategoryList).Error
+	}
+
 	if err != nil {
 		return nil, err
 	}

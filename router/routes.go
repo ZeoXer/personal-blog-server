@@ -50,6 +50,12 @@ func InitializeRoutes(router *gin.Engine) {
 	articleRouterPrivateGroup.PUT("updateArticle/:articleId", ArticleAPI.UpdateArticle)
 	articleRouterPrivateGroup.GET("getArticlesByCategory/:categoryId", ArticleAPI.GetArticlesByCategory)
 
+	// /article/public/...
+	articleRouterPublicGroup := router.Group("article/public")
+	articleRouterPublicGroup.GET("getAllArticleCategory/:authorName", ArticleAPI.GetAllArticleCategory)
+	articleRouterPublicGroup.GET("getArticlesByCategory/:authorName/:categoryId", ArticleAPI.GetArticlesByCategory)
+	articleRouterPublicGroup.GET("getArticle/:authorName/:articleId", ArticleAPI.GetArticle)
+
 	// /image/...
 	imgRouterGroup := router.Group("image")
 	// 定義靜態資源路徑
