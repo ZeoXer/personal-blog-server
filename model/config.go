@@ -10,7 +10,8 @@ type Config struct {
 		DBName   string `yaml:"dbname"`
 	} `yaml:"database"`
 	Server struct {
-		Host string `yaml:"host"`
-		Port string `yaml:"port"`
+		Host  string `yaml:"host"`
+		Port  string `yaml:"port"`
+		Https bool   `yaml:"https"`
 	} `yaml:"server"`
 }

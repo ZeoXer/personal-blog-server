@@ -10,7 +10,7 @@ import (
 func InitializeRoutes(router *gin.Engine) {
 	// setting cors
 	corsConfig := cors.DefaultConfig()
-	corsConfig.AllowOrigins = []string{"https://blog.zeoxer.com"}
+	corsConfig.AllowOrigins = []string{"https://blog.zeoxer.com", "http://localhost:3000"}
 	corsConfig.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
 	corsConfig.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
 	router.Use(cors.New(corsConfig))

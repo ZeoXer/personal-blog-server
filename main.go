@@ -30,7 +30,10 @@ func main() {
 
 	certFile := "./certificate.pem"
 	keyFile := "./private-key.pem"
-	server.RunTLS(":"+global.CONFIG.Server.Port, certFile, keyFile) // Dep
 
-	// server.Run(":" + global.CONFIG.Server.Port) // Dev
+	if global.CONFIG.Server.Https {
+		server.RunTLS(":"+global.CONFIG.Server.Port, certFile, keyFile)
+	} else {
+		server.Run(":" + global.CONFIG.Server.Port)
+	}
 }
