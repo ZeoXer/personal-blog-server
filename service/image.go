@@ -74,13 +74,19 @@ func (i *ImageService) SaveAvatar(c *gin.Context) error {
 }
 
 func (i *ImageService) GetAvatar(c *gin.Context) (model.Avatar, error) {
+	authorName := c.Param("authorName")
 	username, _, err := Utils.GetUserInfo(c)
-	if err != nil {
+	if err != nil && authorName == "" {
 		return model.Avatar{}, fmt.Errorf("使用者名稱不存在")
 	}
 
 	avatar := model.Avatar{}
-	if err := global.DB.Where("username = ?", username).First(&avatar).Error; err != nil {
+	searchName := username
+	if authorName != "" {
+		searchName = authorName
+	}
+
+	if err := global.DB.Where("username = ?", searchName).First(&avatar).Error; err != nil {
 		return model.Avatar{}, fmt.Errorf("頭像不存在")
 	}
 

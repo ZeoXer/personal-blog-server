@@ -37,6 +37,17 @@ func (a *ArticleAPI) UpdateArticleCategory(c *gin.Context) {
 	Utils.CJSON(200, "更新文章分類成功", nil, 1, c)
 }
 
+func (a *ArticleAPI) DeleteArticleCategory(c *gin.Context) {
+	err := ArticleService.DeleteArticleCategory(c)
+
+	if err != nil {
+		Utils.CJSON(500, err.Error(), nil, 0, c)
+		return
+	}
+
+	Utils.CJSON(200, "刪除文章分類成功", nil, 1, c)
+}
+
 func (a *ArticleAPI) AddArticle(c *gin.Context) {
 	err := ArticleService.CreateArticle(c)
 
@@ -70,6 +81,17 @@ func (a *ArticleAPI) UpdateArticle(c *gin.Context) {
 	Utils.CJSON(200, "更新文章成功", nil, 1, c)
 }
 
+func (a *ArticleAPI) DeleteArticle(c *gin.Context) {
+	err := ArticleService.DeleteArticle(c)
+
+	if err != nil {
+		Utils.CJSON(500, err.Error(), nil, 0, c)
+		return
+	}
+
+	Utils.CJSON(200, "刪除文章成功", nil, 1, c)
+}
+
 func (a *ArticleAPI) GetArticlesByCategory(c *gin.Context) {
 	articles, err := ArticleService.GetArticlesByCategory(c)
 
@@ -79,6 +101,17 @@ func (a *ArticleAPI) GetArticlesByCategory(c *gin.Context) {
 	}
 
 	Utils.CJSON(200, "取得文章列表成功", articles, 1, c)
+}
+
+func (a *ArticleAPI) GetArticleAnalysis(c *gin.Context) {
+	analysis, err := ArticleService.GetArticleAnalysis(c)
+
+	if err != nil {
+		Utils.CJSON(500, err.Error(), nil, 0, c)
+		return
+	}
+
+	Utils.CJSON(200, "取得統計數據成功", analysis, 1, c)
 }
 
 var ArticleAPIGroup = new(ArticleAPI)

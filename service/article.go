@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"go-server/global"
 	article_model "go-server/model"
 	"strconv"
@@ -105,11 +106,16 @@ func (a *ArticleService) UpdateArticle(c *gin.Context) error {
 	return nil
 }
 
-// TODO
-func (a *ArticleService) DeleteArticle(articleId uint) error {
+func (a *ArticleService) DeleteArticle(c *gin.Context) error {
+	username, _, err := Utils.GetUserInfo(c)
+	articleId := c.Param("articleId")
+	if err != nil || articleId == "" {
+		return fmt.Errorf("information error")
+	}
+
 	var article article_model.Article
 
-	err := global.DB.Delete(&article, articleId).Error
+	err = global.DB.Where("id = ? AND username = ?", articleId, username).Delete(&article).Error
 	if err != nil {
 		return err
 	}
@@ -225,16 +231,49 @@ func (a *ArticleService) UpdateArticleCategory(c *gin.Context) error {
 	return nil
 }
 
-// TODO
-func (a *ArticleService) DeleteArticleCategory(categoryId uint) error {
+func (a *ArticleService) DeleteArticleCategory(c *gin.Context) error {
+	username, _, err := Utils.GetUserInfo(c)
+	categoryId := c.Param("categoryId")
+	if err != nil || categoryId == "" {
+		return fmt.Errorf("information error")
+	}
+
 	var articleCategory article_model.ArticleCategory
 
-	err := global.DB.Delete(&articleCategory, categoryId).Error
+	err = global.DB.Where("id = ? AND username = ?", categoryId, username).Delete(&articleCategory).Error
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (a *ArticleService) GetArticleAnalysis(c *gin.Context) (article_model.ArticleAnalysis, error) {
+	articleAnalysis := article_model.ArticleAnalysis{}
+	username, _, err := Utils.GetUserInfo(c)
+	if err != nil {
+		return articleAnalysis, err
+	}
+
+	var articles []article_model.Article
+	var articleCategories []article_model.ArticleCategory
+
+	err = global.DB.Where("username = ?", username).Find(&articles).Error
+	if err != nil {
+		return articleAnalysis, err
+	}
+
+	err = global.DB.Where("username = ?", username).Find(&articleCategories).Error
+	if err != nil {
+		return articleAnalysis, err
+	}
+
+	articleAnalysis = article_model.ArticleAnalysis{
+		ArticleAmount:         uint(len(articles)),
+		ArticleCategoryAmount: uint(len(articleCategories)),
+	}
+
+	return articleAnalysis, nil
 }
 
 var ArticleServiceGroup = new(ArticleService)

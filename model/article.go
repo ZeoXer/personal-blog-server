@@ -29,3 +29,8 @@ type ArticleCategory struct {
 func (a ArticleCategory) TableName() string {
 	return "ArticleCategories"
 }
+
+type ArticleAnalysis struct {
+	ArticleAmount         uint `json:"article_amount"`
+	ArticleCategoryAmount uint `json:"article_category_amount"`
+}

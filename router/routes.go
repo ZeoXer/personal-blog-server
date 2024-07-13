@@ -45,10 +45,13 @@ func InitializeRoutes(router *gin.Engine) {
 	articleRouterPrivateGroup.POST("addArticleCategory", ArticleAPI.AddArticleCategory)
 	articleRouterPrivateGroup.GET("getAllArticleCategory", ArticleAPI.GetAllArticleCategory)
 	articleRouterPrivateGroup.PUT("updateArticleCategory/:categoryId", ArticleAPI.UpdateArticleCategory)
+	articleRouterPrivateGroup.DELETE("deleteArticleCategory/:categoryId", ArticleAPI.DeleteArticleCategory)
 	articleRouterPrivateGroup.POST("addArticle", ArticleAPI.AddArticle)
 	articleRouterPrivateGroup.GET("getArticle/:articleId", ArticleAPI.GetArticle)
 	articleRouterPrivateGroup.PUT("updateArticle/:articleId", ArticleAPI.UpdateArticle)
+	articleRouterPrivateGroup.DELETE("deleteArticle/:articleId", ArticleAPI.DeleteArticle)
 	articleRouterPrivateGroup.GET("getArticlesByCategory/:categoryId", ArticleAPI.GetArticlesByCategory)
+	articleRouterPrivateGroup.GET("getArticleAnalysis", ArticleAPI.GetArticleAnalysis)
 
 	// /article/public/...
 	articleRouterPublicGroup := router.Group("article/public")
@@ -64,4 +67,8 @@ func InitializeRoutes(router *gin.Engine) {
 	imgRouterGroup.POST("uploadAvatar", ImageAPI.UploadAvatar)
 	imgRouterGroup.GET("getAvatar", ImageAPI.GetAvatar)
 	imgRouterGroup.DELETE("removeAvatar", ImageAPI.RemoveAvatar)
+
+	// /image/public/...
+	imgPublicRouterGroup := router.Group("image/public")
+	imgPublicRouterGroup.GET("getAvatar/:authorName", ImageAPI.GetAvatar)
 }
