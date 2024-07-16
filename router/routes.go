@@ -63,6 +63,7 @@ func InitializeRoutes(router *gin.Engine) {
 	imgRouterGroup := router.Group("image")
 	// 定義靜態資源路徑
 	router.Static("/uploadImgs/avatar", "./uploadImgs/avatar")
+	router.Static("/uploadImgs/image", "./uploadImgs/image")
 	imgRouterGroup.Use(AuthMiddlewareGroup.AuthMiddleware())
 	imgRouterGroup.POST("uploadAvatar", ImageAPI.UploadAvatar)
 	imgRouterGroup.GET("getAvatar", ImageAPI.GetAvatar)
