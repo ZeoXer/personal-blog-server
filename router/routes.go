@@ -67,6 +67,7 @@ func InitializeRoutes(router *gin.Engine) {
 	imgRouterGroup.POST("uploadAvatar", ImageAPI.UploadAvatar)
 	imgRouterGroup.GET("getAvatar", ImageAPI.GetAvatar)
 	imgRouterGroup.DELETE("removeAvatar", ImageAPI.RemoveAvatar)
+	imgRouterGroup.POST("uploadImage", ImageAPI.UploadImage)
 
 	// /image/public/...
 	imgPublicRouterGroup := router.Group("image/public")

@@ -114,4 +114,49 @@ func (i *ImageService) RemoveAvatar(c *gin.Context) error {
 	return nil
 }
 
+func (i *ImageService) SaveImage(c *gin.Context) (model.Image, error) {
+	image := model.Image{}
+
+	file, handler, err := c.Request.FormFile("uploadImage")
+	if err != nil {
+		return image, err
+	}
+	defer file.Close()
+
+	username, _, err := Utils.GetUserInfo(c)
+	if err != nil {
+		return image, err
+	}
+
+	serverPath := fmt.Sprintf("https://%s/", global.CONFIG.Server.Host)
+	imgSavePath := fmt.Sprintf("uploadImgs/image/%s", username)
+	imgPath := imgSavePath + "/" + handler.Filename
+	if _, err := os.Stat(imgSavePath); os.IsNotExist(err) {
+		err := os.MkdirAll(imgSavePath, 0755)
+		if err != nil {
+			return image, err
+		}
+	}
+
+	uploadFile, err := os.OpenFile(imgPath, os.O_WRONLY|os.O_CREATE, 0666)
+	if err != nil {
+		return image, err
+	}
+	defer uploadFile.Close()
+
+	if _, err := io.Copy(uploadFile, file); err != nil {
+		return image, err
+	}
+
+	image = model.Image{
+		Filename: handler.Filename,
+		Path:     fmt.Sprintf("%s%s", serverPath, imgPath),
+	}
+	if err := global.DB.Create(&image).Error; err != nil {
+		return image, err
+	}
+
+	return image, nil
+}
+
 var ImageServiceGroup = new(ImageService)

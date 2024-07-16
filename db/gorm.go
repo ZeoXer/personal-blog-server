@@ -21,7 +21,7 @@ func Connect() (*gorm.DB, error) {
 
 // AutoMigrate will create the tables in the database
 func AutoMigrate() {
-	if err := global.DB.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(model.User{}, model.Avatar{}, model.ArticleCategory{}, model.Article{}); err != nil {
+	if err := global.DB.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(model.User{}, model.Avatar{}, model.ArticleCategory{}, model.Article{}, model.Image{}); err != nil {
 		panic("Error automigrating: " + err.Error())
 	}
 }

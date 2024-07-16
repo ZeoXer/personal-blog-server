@@ -40,4 +40,15 @@ func (i *ImageAPI) RemoveAvatar(c *gin.Context) {
 	Utils.CJSON(200, "刪除頭像成功", nil, 1, c)
 }
 
+func (i *ImageAPI) UploadImage(c *gin.Context) {
+	image, err := ImageService.SaveImage(c)
+
+	if err != nil {
+		Utils.CJSON(500, err.Error(), image, 0, c)
+		return
+	}
+
+	Utils.CJSON(200, "圖片上傳成功", image, 1, c)
+}
+
 var ImageAPIGroup = new(ImageAPI)
