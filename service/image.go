@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type ImageService struct{}
@@ -130,7 +131,7 @@ func (i *ImageService) SaveImage(c *gin.Context) (model.Image, error) {
 
 	serverPath := fmt.Sprintf("https://%s/", global.CONFIG.Server.Host)
 	imgSavePath := fmt.Sprintf("uploadImgs/image/%s", username)
-	imgPath := imgSavePath + "/" + handler.Filename
+	imgPath := imgSavePath + "/" + uuid.New().String() + ".png"
 	if _, err := os.Stat(imgSavePath); os.IsNotExist(err) {
 		err := os.MkdirAll(imgSavePath, 0755)
 		if err != nil {
