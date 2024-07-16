@@ -18,9 +18,10 @@ func makeArticle(c *gin.Context) (*article_model.Article, error) {
 	}
 
 	var RequestBody struct {
-		Title      string `json:"title"`
-		Content    string `json:"content"`
-		CategoryID uint   `json:"category_id"`
+		Title       string `json:"title"`
+		Content     string `json:"content"`
+		IsPublished bool   `json:"is_published"`
+		CategoryID  uint   `json:"category_id"`
 	}
 
 	if err := c.ShouldBindJSON(&RequestBody); err != nil {
@@ -28,10 +29,11 @@ func makeArticle(c *gin.Context) (*article_model.Article, error) {
 	}
 
 	article := &article_model.Article{
-		Title:      RequestBody.Title,
-		Content:    RequestBody.Content,
-		Username:   username,
-		CategoryID: RequestBody.CategoryID,
+		Title:       RequestBody.Title,
+		Content:     RequestBody.Content,
+		IsPublished: RequestBody.IsPublished,
+		Username:    username,
+		CategoryID:  RequestBody.CategoryID,
 	}
 
 	return article, nil
