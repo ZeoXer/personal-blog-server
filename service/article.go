@@ -278,4 +278,32 @@ func (a *ArticleService) GetArticleAnalysis(c *gin.Context) (article_model.Artic
 	return articleAnalysis, nil
 }
 
+func (a *ArticleService) SearchArticleByKeyword(c *gin.Context) ([]article_model.Article, error) {
+	var articles []article_model.Article
+	authorName := c.Param("authorName")
+	username, _, err := Utils.GetUserInfo(c)
+	if err != nil && authorName == "" {
+		return nil, err
+	}
+	searchName := username
+
+	if authorName != "" {
+		searchName = authorName
+	}
+
+	keyword := c.Query("keyword")
+
+	if keyword == "" {
+		return nil, fmt.Errorf("找不到輸入的關鍵字")
+	}
+
+	err = global.DB.Where("username = ? AND (title LIKE ? OR content LIKE ?)", searchName, "%"+keyword+"%", "%"+keyword+"%").Find(&articles).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return articles, nil
+}
+
 var ArticleServiceGroup = new(ArticleService)

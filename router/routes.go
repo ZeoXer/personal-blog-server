@@ -52,12 +52,14 @@ func InitializeRoutes(router *gin.Engine) {
 	articleRouterPrivateGroup.DELETE("deleteArticle/:articleId", ArticleAPI.DeleteArticle)
 	articleRouterPrivateGroup.GET("getArticlesByCategory/:categoryId", ArticleAPI.GetArticlesByCategory)
 	articleRouterPrivateGroup.GET("getArticleAnalysis", ArticleAPI.GetArticleAnalysis)
+	articleRouterPrivateGroup.GET("searchArticleByKeyword", ArticleAPI.SearchArticleByKeyword)
 
 	// /article/public/...
 	articleRouterPublicGroup := router.Group("article/public")
 	articleRouterPublicGroup.GET("getAllArticleCategory/:authorName", ArticleAPI.GetAllArticleCategory)
 	articleRouterPublicGroup.GET("getArticlesByCategory/:authorName/:categoryId", ArticleAPI.GetArticlesByCategory)
 	articleRouterPublicGroup.GET("getArticle/:authorName/:articleId", ArticleAPI.GetArticle)
+	articleRouterPublicGroup.GET("searchArticleByKeyword/:authorName", ArticleAPI.SearchArticleByKeyword)
 
 	// /image/...
 	imgRouterGroup := router.Group("image")

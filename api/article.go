@@ -114,4 +114,15 @@ func (a *ArticleAPI) GetArticleAnalysis(c *gin.Context) {
 	Utils.CJSON(200, "取得統計數據成功", analysis, 1, c)
 }
 
+func (a *ArticleAPI) SearchArticleByKeyword(c *gin.Context) {
+	articles, err := ArticleService.SearchArticleByKeyword(c)
+
+	if err != nil {
+		Utils.CJSON(404, err.Error(), nil, 0, c)
+		return
+	}
+
+	Utils.CJSON(200, "搜尋文章結果成功", articles, 1, c)
+}
+
 var ArticleAPIGroup = new(ArticleAPI)
