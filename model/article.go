@@ -10,7 +10,7 @@ type Article struct {
 	UpdatedAt   time.Time `json:"updated_at" gorm:"autoUpdateTime"`
 	Username    string    `json:"username" gorm:"not null;type:varchar(50);"`
 	CategoryID  uint      `json:"category_id" gorm:"not null;type:varchar(50);"`
-	Title       string    `json:"title" gorm:"not null;type:varchar(50);"`
+	Title       string    `json:"title" gorm:"not null;type:varchar(100);"`
 	Content     string    `json:"content" gorm:"type:text;"`
 	IsPublished bool      `json:"is_published" gorm:"not null;default:false;"`
 }
