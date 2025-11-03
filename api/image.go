@@ -51,4 +51,26 @@ func (i *ImageAPI) UploadImage(c *gin.Context) {
 	Utils.CJSON(200, "圖片上傳成功", image, 1, c)
 }
 
+func (i *ImageAPI) ListObjectsR2(c *gin.Context) {
+	objects, err := ImageService.ListObjectsR2(c)
+
+	if err != nil {
+		Utils.CJSON(500, err.Error(), nil, 0, c)
+		return
+	}
+
+	Utils.CJSON(200, "取得物件列表成功", objects, 1, c)
+}
+
+func (i *ImageAPI) PutObjectR2(c *gin.Context) {
+	url, err := ImageService.PutObjectR2(c)
+
+	if err != nil {
+		Utils.CJSON(500, err.Error(), nil, 0, c)
+		return
+	}
+
+	Utils.CJSON(200, "上傳物件成功", url, 1, c)
+}
+
 var ImageAPIGroup = new(ImageAPI)

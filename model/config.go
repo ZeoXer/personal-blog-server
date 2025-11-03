@@ -14,4 +14,11 @@ type Config struct {
 		Port  string `yaml:"port"`
 		Https bool   `yaml:"https"`
 	} `yaml:"server"`
+	R2Storage struct {
+		Endpoint   string `yaml:"endpoint"`
+		BucketName string `yaml:"bucketname"`
+		Region     string `yaml:"region"`
+		AccessKey  string `yaml:"accesskey"`
+		SecretKey  string `yaml:"secretkey"`
+	} `yaml:"r2storage"`
 }

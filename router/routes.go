@@ -51,7 +51,6 @@ func InitializeRoutes(router *gin.Engine) {
 	articleRouterPrivateGroup.PUT("updateArticle/:articleId", ArticleAPI.UpdateArticle)
 	articleRouterPrivateGroup.DELETE("deleteArticle/:articleId", ArticleAPI.DeleteArticle)
 	articleRouterPrivateGroup.GET("getArticlesByCategory/:categoryId", ArticleAPI.GetArticlesByCategory)
-	articleRouterPrivateGroup.GET("getArticleAnalysis", ArticleAPI.GetArticleAnalysis)
 	articleRouterPrivateGroup.GET("searchArticleByKeyword", ArticleAPI.SearchArticleByKeyword)
 
 	// /article/public/...
@@ -60,6 +59,9 @@ func InitializeRoutes(router *gin.Engine) {
 	articleRouterPublicGroup.GET("getArticlesByCategory/:authorName/:categoryId", ArticleAPI.GetArticlesByCategory)
 	articleRouterPublicGroup.GET("getArticle/:authorName/:articleId", ArticleAPI.GetArticle)
 	articleRouterPublicGroup.GET("searchArticleByKeyword/:authorName", ArticleAPI.SearchArticleByKeyword)
+	articleRouterPublicGroup.GET("getArticleAnalysis/:authorName", ArticleAPI.GetArticleAnalysis)
+	articleRouterPublicGroup.GET("getArticleCategoryById/:authorName/:categoryId", ArticleAPI.GetArticleCategoryById)
+	articleRouterPublicGroup.GET("searchArticleByKeyword", ArticleAPI.SearchArticleByKeyword)
 
 	// /image/...
 	imgRouterGroup := router.Group("image")
@@ -75,4 +77,10 @@ func InitializeRoutes(router *gin.Engine) {
 	// /image/public/...
 	imgPublicRouterGroup := router.Group("image/public")
 	imgPublicRouterGroup.GET("getAvatar/:authorName", ImageAPI.GetAvatar)
+
+	// /r2/...
+	r2RouterGroup := router.Group("r2")
+	r2RouterGroup.Use(AuthMiddlewareGroup.AuthMiddleware())
+	r2RouterGroup.GET("listObjects", ImageAPI.ListObjectsR2)
+	r2RouterGroup.PUT("putObject", ImageAPI.PutObjectR2)
 }

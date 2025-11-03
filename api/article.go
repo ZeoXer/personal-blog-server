@@ -93,14 +93,25 @@ func (a *ArticleAPI) DeleteArticle(c *gin.Context) {
 }
 
 func (a *ArticleAPI) GetArticlesByCategory(c *gin.Context) {
-	articles, err := ArticleService.GetArticlesByCategory(c)
+	articles, totalPage, err := ArticleService.GetArticlesByCategory(c)
 
 	if err != nil {
 		Utils.CJSON(404, err.Error(), nil, 0, c)
 		return
 	}
 
-	Utils.CJSON(200, "取得文章列表成功", articles, 1, c)
+	Utils.CJSON(200, "取得文章列表成功", gin.H{"articles": articles, "total_page": totalPage}, 1, c)
+}
+
+func (a *ArticleAPI) GetArticleCategoryById(c *gin.Context) {
+	articleCategory, err := ArticleService.GetArticleCategoryById(c)
+
+	if err != nil {
+		Utils.CJSON(404, err.Error(), nil, 0, c)
+		return
+	}
+
+	Utils.CJSON(200, "取得文章分類成功", articleCategory, 1, c)
 }
 
 func (a *ArticleAPI) GetArticleAnalysis(c *gin.Context) {

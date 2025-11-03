@@ -3,3 +3,4 @@ uploadImgs/*
 certificate.pem
 private-key.pem
 server*
+*.exe

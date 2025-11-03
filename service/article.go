@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go-server/global"
 	article_model "go-server/model"
+	"math"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -94,13 +95,30 @@ func (a *ArticleService) UpdateArticle(c *gin.Context) error {
 		return err
 	}
 
-	article, err := makeArticle(c)
-	if err != nil {
+	var reqMap map[string]interface{}
+	if err := c.ShouldBindJSON(&reqMap); err != nil {
 		return err
 	}
 
-	err = global.DB.Model(&article_model.Article{}).Where("id = ?", articleId).Updates(article).Error
+	updates := map[string]interface{}{}
+	if v, ok := reqMap["title"]; ok {
+		updates["title"] = v
+	}
+	if v, ok := reqMap["content"]; ok {
+		updates["content"] = v
+	}
+	if v, ok := reqMap["is_published"]; ok {
+		updates["is_published"] = v
+	}
+	if v, ok := reqMap["category_id"]; ok {
+		updates["category_id"] = v
+	}
 
+	if len(updates) == 0 {
+		return nil
+	}
+
+	err = global.DB.Model(&article_model.Article{}).Where("id = ?", articleId).Updates(updates).Error
 	if err != nil {
 		return err
 	}
@@ -125,31 +143,61 @@ func (a *ArticleService) DeleteArticle(c *gin.Context) error {
 	return nil
 }
 
-func (a *ArticleService) GetArticlesByCategory(c *gin.Context) ([]article_model.Article, error) {
+func (a *ArticleService) GetArticlesByCategory(c *gin.Context) ([]article_model.Article, int64, error) {
 	authorName := c.Param("authorName")
+	page := c.Query("page")
 	username, _, err := Utils.GetUserInfo(c)
 	if err != nil && authorName == "" {
-		return nil, err
+		return nil, 0, err
 	}
 
 	categoryIdParam := c.Param("categoryId")
 	categoryId, err := strconv.Atoi(categoryIdParam)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
+
+	pageNum := 1
+	if page != "" {
+		if p, perr := strconv.Atoi(page); perr == nil && p > 0 {
+			pageNum = p
+		}
+	}
+	pageSize := 10
+	offset := (pageNum - 1) * pageSize
 
 	var articleList []article_model.Article
+	var totalCount int64
+
+	errA := error(nil)
+	errC := error(nil)
 	if authorName != "" {
-		err = global.DB.Where("username = ? AND category_id = ? AND is_published = ?", authorName, categoryId, true).Find(&articleList).Error
+		errA = global.DB.Where("username = ? AND category_id = ? AND is_published = ?", authorName, categoryId, true).
+			Order("updated_at DESC").
+			Limit(pageSize).
+			Offset(offset).
+			Find(&articleList).Error
+		errC = global.DB.Model(&article_model.Article{}).
+			Where("username = ? AND category_id = ? AND is_published = ?", authorName, categoryId, true).
+			Count(&totalCount).Error
 	} else {
-		err = global.DB.Where("username = ? AND category_id = ?", username, categoryId).Find(&articleList).Error
+		errA = global.DB.Where("username = ? AND category_id = ?", username, categoryId).
+			Order("updated_at DESC").
+			Limit(pageSize).
+			Offset(offset).
+			Find(&articleList).Error
+		errC = global.DB.Model(&article_model.Article{}).
+			Where("username = ? AND category_id = ?", username, categoryId).
+			Count(&totalCount).Error
 	}
 
-	if err != nil {
-		return nil, err
+	if errA != nil || errC != nil {
+		return nil, 0, fmt.Errorf("failed to get articles: %v, %v", errA, errC)
 	}
 
-	return articleList, nil
+	totalPage := int64(math.Ceil(float64(totalCount) / float64(pageSize)))
+
+	return articleList, totalPage, nil
 }
 
 func (a *ArticleService) CreateArticleCategory(c *gin.Context) error {
@@ -198,6 +246,23 @@ func (a *ArticleService) GetArticleCategoryList(c *gin.Context) ([]article_model
 	}
 
 	return articleCategoryList, nil
+}
+
+func (a *ArticleService) GetArticleCategoryById(c *gin.Context) (article_model.ArticleCategory, error) {
+	var articleCategory article_model.ArticleCategory
+	authorName := c.Param("authorName")
+	categoryIdParam := c.Param("categoryId")
+	categoryId, err := strconv.Atoi(categoryIdParam)
+	if err != nil {
+		return articleCategory, err
+	}
+
+	err = global.DB.Where("username = ? AND id = ?", authorName, categoryId).First(&articleCategory).Error
+	if err != nil {
+		return articleCategory, err
+	}
+
+	return articleCategory, nil
 }
 
 func (a *ArticleService) UpdateArticleCategory(c *gin.Context) error {
@@ -252,20 +317,17 @@ func (a *ArticleService) DeleteArticleCategory(c *gin.Context) error {
 
 func (a *ArticleService) GetArticleAnalysis(c *gin.Context) (article_model.ArticleAnalysis, error) {
 	articleAnalysis := article_model.ArticleAnalysis{}
-	username, _, err := Utils.GetUserInfo(c)
-	if err != nil {
-		return articleAnalysis, err
-	}
+	authorName := c.Param("authorName")
 
 	var articles []article_model.Article
 	var articleCategories []article_model.ArticleCategory
 
-	err = global.DB.Where("username = ?", username).Find(&articles).Error
+	err := global.DB.Where("username = ?", authorName).Find(&articles).Error
 	if err != nil {
 		return articleAnalysis, err
 	}
 
-	err = global.DB.Where("username = ?", username).Find(&articleCategories).Error
+	err = global.DB.Where("username = ?", authorName).Find(&articleCategories).Error
 	if err != nil {
 		return articleAnalysis, err
 	}
@@ -297,7 +359,11 @@ func (a *ArticleService) SearchArticleByKeyword(c *gin.Context) ([]article_model
 		return nil, fmt.Errorf("找不到輸入的關鍵字")
 	}
 
-	err = global.DB.Where("username = ? AND (title LIKE ? OR content LIKE ?)", searchName, "%"+keyword+"%", "%"+keyword+"%").Find(&articles).Error
+	if authorName != "" {
+		err = global.DB.Where("username = ? AND (title LIKE ? OR content LIKE ?) AND is_published = ?", searchName, "%"+keyword+"%", "%"+keyword+"%", true).Find(&articles).Error
+	} else {
+		err = global.DB.Where("username = ? AND (title LIKE ? OR content LIKE ?)", searchName, "%"+keyword+"%", "%"+keyword+"%").Find(&articles).Error
+	}
 
 	if err != nil {
 		return nil, err

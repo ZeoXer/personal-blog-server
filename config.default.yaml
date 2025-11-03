@@ -8,3 +8,10 @@ database:
 server:
   host: 
   port: 
+  https:
+r2_storage:
+  endpoint:
+  bucket_name: 
+  region:
+  access_key:
+  secret_key:
