@@ -28,10 +28,13 @@ func InitializeRoutes(router *gin.Engine) {
 	ImageAPI := api.ImageAPIGroup
 	ArticleAPI := api.ArticleAPIGroup
 	AuthMiddlewareGroup := api.AuthMiddlewareGroup
+	RateLimitMiddlewareGroup := api.RateLimitMiddlewareGroup
 
 	// /auth/...
+	authRateLimiter := RateLimitMiddlewareGroup.NewIPRateLimiter(1, 5)
 	authRouterGroup := router.Group("auth")
-	authRouterGroup.POST("signup", AuthAPI.Signup)
+	authRouterGroup.Use(RateLimitMiddlewareGroup.RateLimitMiddleware(authRateLimiter))
+	// authRouterGroup.POST("signup", AuthAPI.Signup)
 	authRouterGroup.POST("login", AuthAPI.Login)
 
 	// /user/...
@@ -54,7 +57,9 @@ func InitializeRoutes(router *gin.Engine) {
 	articleRouterPrivateGroup.GET("searchArticleByKeyword", ArticleAPI.SearchArticleByKeyword)
 
 	// /article/public/...
+	publicRateLimiter := RateLimitMiddlewareGroup.NewIPRateLimiter(5, 10)
 	articleRouterPublicGroup := router.Group("article/public")
+	articleRouterPublicGroup.Use(RateLimitMiddlewareGroup.RateLimitMiddleware(publicRateLimiter))
 	articleRouterPublicGroup.GET("getAllArticleCategory/:authorName", ArticleAPI.GetAllArticleCategory)
 	articleRouterPublicGroup.GET("getArticlesByCategory/:authorName/:categoryId", ArticleAPI.GetArticlesByCategory)
 	articleRouterPublicGroup.GET("getArticle/:authorName/:articleId", ArticleAPI.GetArticle)
@@ -63,20 +68,20 @@ func InitializeRoutes(router *gin.Engine) {
 	articleRouterPublicGroup.GET("getArticleCategoryById/:authorName/:categoryId", ArticleAPI.GetArticleCategoryById)
 	articleRouterPublicGroup.GET("searchArticleByKeyword", ArticleAPI.SearchArticleByKeyword)
 
-	// /image/...
-	imgRouterGroup := router.Group("image")
-	// 定義靜態資源路徑
-	router.Static("/uploadImgs/avatar", "./uploadImgs/avatar")
-	router.Static("/uploadImgs/image", "./uploadImgs/image")
-	imgRouterGroup.Use(AuthMiddlewareGroup.AuthMiddleware())
-	imgRouterGroup.POST("uploadAvatar", ImageAPI.UploadAvatar)
-	imgRouterGroup.GET("getAvatar", ImageAPI.GetAvatar)
-	imgRouterGroup.DELETE("removeAvatar", ImageAPI.RemoveAvatar)
-	imgRouterGroup.POST("uploadImage", ImageAPI.UploadImage)
+	// // /image/...
+	// imgRouterGroup := router.Group("image")
+	// // 定義靜態資源路徑
+	// router.Static("/uploadImgs/avatar", "./uploadImgs/avatar")
+	// router.Static("/uploadImgs/image", "./uploadImgs/image")
+	// imgRouterGroup.Use(AuthMiddlewareGroup.AuthMiddleware())
+	// imgRouterGroup.POST("uploadAvatar", ImageAPI.UploadAvatar)
+	// imgRouterGroup.GET("getAvatar", ImageAPI.GetAvatar)
+	// imgRouterGroup.DELETE("removeAvatar", ImageAPI.RemoveAvatar)
+	// imgRouterGroup.POST("uploadImage", ImageAPI.UploadImage)
 
-	// /image/public/...
-	imgPublicRouterGroup := router.Group("image/public")
-	imgPublicRouterGroup.GET("getAvatar/:authorName", ImageAPI.GetAvatar)
+	// // /image/public/...
+	// imgPublicRouterGroup := router.Group("image/public")
+	// imgPublicRouterGroup.GET("getAvatar/:authorName", ImageAPI.GetAvatar)
 
 	// /r2/...
 	r2RouterGroup := router.Group("r2")
