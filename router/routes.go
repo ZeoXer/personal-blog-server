@@ -60,6 +60,7 @@ func InitializeRoutes(router *gin.Engine) {
 	publicRateLimiter := RateLimitMiddlewareGroup.NewIPRateLimiter(5, 10)
 	articleRouterPublicGroup := router.Group("article/public")
 	articleRouterPublicGroup.Use(RateLimitMiddlewareGroup.RateLimitMiddleware(publicRateLimiter))
+	articleRouterPublicGroup.GET("getAllPublicArticles/:authorName", ArticleAPI.GetAllPublicArticles)
 	articleRouterPublicGroup.GET("getAllArticleCategory/:authorName", ArticleAPI.GetAllArticleCategory)
 	articleRouterPublicGroup.GET("getArticlesByCategory/:authorName/:categoryId", ArticleAPI.GetArticlesByCategory)
 	articleRouterPublicGroup.GET("getArticle/:authorName/:articleId", ArticleAPI.GetArticle)

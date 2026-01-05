@@ -92,6 +92,17 @@ func (a *ArticleAPI) DeleteArticle(c *gin.Context) {
 	Utils.CJSON(200, "刪除文章成功", nil, 1, c)
 }
 
+func (a *ArticleAPI) GetAllPublicArticles(c *gin.Context) {
+	articles, err := ArticleService.GetAllPublicArticles(c)
+
+	if err != nil {
+		Utils.CJSON(404, err.Error(), nil, 0, c)
+		return
+	}
+
+	Utils.CJSON(200, "取得所有發佈文章成功", articles, 1, c)
+}
+
 func (a *ArticleAPI) GetArticlesByCategory(c *gin.Context) {
 	articles, totalPage, err := ArticleService.GetArticlesByCategory(c)
 

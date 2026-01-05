@@ -143,6 +143,19 @@ func (a *ArticleService) DeleteArticle(c *gin.Context) error {
 	return nil
 }
 
+func (a *ArticleService) GetAllPublicArticles(c *gin.Context) ([]article_model.Article, error) {
+	authorName := c.Param("authorName")
+	var articleList []article_model.Article
+
+	err := global.DB.Where("username = ? AND is_published = ?", authorName, true).Order("updated_at DESC").Find(&articleList).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return articleList, nil
+}
+
 func (a *ArticleService) GetArticlesByCategory(c *gin.Context) ([]article_model.Article, int64, error) {
 	authorName := c.Param("authorName")
 	page := c.Query("page")
